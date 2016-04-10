@@ -10,7 +10,7 @@ import (
 
 func main() {
 	isServer := kingpin.Flag("server", "Run in server mode").Short('s').Bool()
-	cmdArgs := kingpin.Arg("cmdArgs", "In client mode pass command arguments").String()
+	cmd := kingpin.Flag("cmd", "[Client mode] Command to run").Short('c').String()
 	kingpin.Version("0.0.1")
 	kingpin.Parse()
 
@@ -20,8 +20,7 @@ func main() {
 		err = s.Run()
 	} else {
 		c := client.New(&client.Options{
-			Cmd:  os.Args[0],
-			Args: *cmdArgs,
+			Cmd: *cmd,
 		})
 		err = c.Run()
 	}

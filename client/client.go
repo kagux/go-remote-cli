@@ -10,8 +10,7 @@ type Client struct {
 }
 
 type Options struct {
-	Args string
-	Cmd  string
+	Cmd string
 }
 
 func New(opts *Options) *Client {
@@ -23,6 +22,6 @@ func (c *Client) Run() error {
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(conn, "%s %s \n", c.opts.Cmd, c.opts.Args)
+	fmt.Fprintf(conn, "%s\n", c.opts.Cmd)
 	return nil
 }
