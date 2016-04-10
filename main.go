@@ -20,6 +20,7 @@ func main() {
 		err = s.Run()
 	} else {
 		c := client.New(&client.Options{
+			Cmd:  os.Args[0],
 			Args: *cmdArgs,
 		})
 		err = c.Run()
