@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"bufio"
+	"io"
 )
 
 type Client struct {
@@ -45,14 +46,13 @@ func (c *Client) printOutput(conn net.Conn) {
 	reader := bufio.NewReader(conn)
 	for {
 		str, err := reader.ReadString('\n')
-		// can have err and str at the same time
-		if len(str) > 0 {
-				fmt.Print(str)
-		}
 		if err == nil {
-			continue
+				fmt.Print(str)
+				continue
 		}
-		fmt.Println("Connection closed", err)
+		if err != io.EOF {
+			panic("error while reading from connection")
+		}
 		c.wait <- true
 		return
 	}

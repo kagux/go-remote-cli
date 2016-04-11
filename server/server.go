@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"net"
+	"time"
 )
 
 type Server struct {
@@ -57,5 +58,7 @@ func (s *Server) handleRequest(conn net.Conn, cmdRunner *CommandRunner) {
 		}
 	}()
 	err = cmdRunner.Run(cmd, out)
+	// give client some time to read output
+	time.Sleep(500 * time.Millisecond)
 	conn.Close()
 }
