@@ -11,6 +11,13 @@ type Client struct {
 
 type Options struct {
 	Cmd string
+	Host string
+	Port int
+}
+
+func (o *Options) Address() string {
+	addr := fmt.Sprintf("%s:%d", o.Host, o.Port)
+	return addr
 }
 
 func New(opts *Options) *Client {
@@ -18,7 +25,7 @@ func New(opts *Options) *Client {
 }
 
 func (c *Client) Run() error {
-	conn, err := net.Dial("tcp", "127.0.0.1:8081")
+	conn, err := net.Dial("tcp", c.opts.Address())
 	if err != nil {
 		return err
 	}
