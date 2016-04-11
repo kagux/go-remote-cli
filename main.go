@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./client"
-	"./server"
+	"github.com/kagux/go-remote-cli/client"
+	"github.com/kagux/go-remote-cli/server"
 	"fmt"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
