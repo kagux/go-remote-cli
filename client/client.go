@@ -3,10 +3,12 @@ package client
 import (
 	"fmt"
 	"net"
+	"bufio"
 )
 
 type Client struct {
 	opts *Options
+	wait chan bool
 }
 
 type Options struct {
@@ -21,7 +23,10 @@ func (o *Options) Address() string {
 }
 
 func New(opts *Options) *Client {
-	return &Client{opts: opts}
+	return &Client{
+		opts: opts,
+		wait: make(chan bool, 1),
+	}
 }
 
 func (c *Client) Run() error {
@@ -29,6 +34,30 @@ func (c *Client) Run() error {
 	if err != nil {
 		return err
 	}
+	go c.printOutput(conn)
 	fmt.Fprintf(conn, "%s\n", c.opts.Cmd)
+	c.waitConn()
+
 	return nil
+}
+
+func (c *Client) printOutput(conn net.Conn) {
+	reader := bufio.NewReader(conn)
+	for {
+		str, err := reader.ReadString('\n')
+		// can have err and str at the same time
+		if len(str) > 0 {
+				fmt.Print(str)
+		}
+		if err == nil {
+			continue
+		}
+		fmt.Println("Connection closed", err)
+		c.wait <- true
+		return
+	}
+}
+
+func (c *Client) waitConn() {
+	<- c.wait
 }

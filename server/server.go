@@ -31,6 +31,7 @@ func (s *Server) Run() error {
 	if err != nil {
 		return err
 	}
+	cmdRunner := &CommandRunner{}
 
 	fmt.Println("Listening...")
 	for {
@@ -38,15 +39,23 @@ func (s *Server) Run() error {
 		if err != nil {
 			return err
 		}
-		go s.handleRequest(conn)
+		go s.handleRequest(conn, cmdRunner)
 	}
 }
 
-func (s *Server) handleRequest(conn net.Conn) {
-	message, err := bufio.NewReader(conn).ReadString('\n')
+func (s *Server) handleRequest(conn net.Conn, cmdRunner *CommandRunner) {
+	cmd, err := bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
 		fmt.Println("Error reading:", err.Error())
 	}
-	fmt.Print("Message Received:", string(message))
+	fmt.Print("Command Received:", string(cmd))
+	out := make(chan string)
+	go func() {
+		for s := range out {
+			fmt.Fprintf(conn, "%s", s)
+			fmt.Print(s)
+		}
+	}()
+	err = cmdRunner.Run(cmd, out)
 	conn.Close()
 }
