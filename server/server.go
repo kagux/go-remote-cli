@@ -3,12 +3,15 @@ package server
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"net"
+	"os"
 	"time"
 )
 
 type Server struct {
-	opts *Options
+	opts      *Options
+	cmdRunner *CommandRunner
 }
 
 type Options struct {
@@ -22,7 +25,10 @@ func (o *Options) Address() string {
 }
 
 func New(opts *Options) *Server {
-	return &Server{ opts: opts }
+	return &Server{
+		opts:      opts,
+		cmdRunner: NewCommandRunner(),
+	}
 }
 
 func (s *Server) Run() error {
@@ -32,32 +38,24 @@ func (s *Server) Run() error {
 	if err != nil {
 		return err
 	}
-	cmdRunner := &CommandRunner{}
-
 	fmt.Println("Listening...")
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
 			return err
 		}
-		go s.handleRequest(conn, cmdRunner)
+		go s.handleRequest(conn)
 	}
 }
 
-func (s *Server) handleRequest(conn net.Conn, cmdRunner *CommandRunner) {
+func (s *Server) handleRequest(conn net.Conn) {
 	cmd, err := bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
 		fmt.Println("Error reading:", err.Error())
 	}
 	fmt.Print("Command Received:", string(cmd))
-	out := make(chan string)
-	go func() {
-		for s := range out {
-			fmt.Fprintf(conn, "%s", s)
-			fmt.Print(s)
-		}
-	}()
-	err = cmdRunner.Run(cmd, out)
+	output := io.MultiWriter(os.Stdout, conn)
+	s.cmdRunner.Run(cmd, output)
 	// give client some time to read output
 	time.Sleep(500 * time.Millisecond)
 	conn.Close()

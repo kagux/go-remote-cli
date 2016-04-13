@@ -1,40 +1,34 @@
 package server
 
 import (
-	"strings"
-	"os/exec"
 	"fmt"
-	"bufio"
+	"io"
+	"os/exec"
+	"strings"
 )
-
 
 type CommandRunner struct {
 }
 
+func NewCommandRunner() *CommandRunner {
+	return &CommandRunner{}
+}
 
-func (cr *CommandRunner) Run(cmdStr string, out chan string) error {
+func (cr *CommandRunner) Run(cmdStr string, output io.Writer) {
+	pReader, pWriter := io.Pipe()
+	defer pWriter.Close()
 	cmdParts := strings.Fields(cmdStr)
 	cmd := exec.Command(cmdParts[0], cmdParts[1:]...)
-	cmdReader, err := cmd.StdoutPipe()
-	if err != nil {
-		return err
+	cmd.Stdout = pWriter
+	cmd.Stderr = pWriter
+
+	go io.Copy(output, pReader)
+
+	if err := cmd.Start(); err != nil {
+		fmt.Fprintln(pWriter, "Error starting command: ", err.Error())
 	}
 
-	scanner := bufio.NewScanner(cmdReader)
-	go func() {
-		for scanner.Scan() {
-			out <- fmt.Sprintf("%s\n", scanner.Text())
-		}
-	}()
-
-	
-	if err = cmd.Start(); err != nil {
-		return err
+	if err := cmd.Wait(); err != nil {
+		fmt.Fprintln(pWriter, "Error executing command: ", err.Error())
 	}
-
-	if err = cmd.Wait(); err != nil {
-		return err
-	}
-
-	return nil
 }

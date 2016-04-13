@@ -2,9 +2,9 @@ package client
 
 import (
 	"fmt"
-	"net"
-	"bufio"
 	"io"
+	"net"
+	"os"
 )
 
 type Client struct {
@@ -13,7 +13,7 @@ type Client struct {
 }
 
 type Options struct {
-	Cmd string
+	Cmd  string
 	Host string
 	Port int
 }
@@ -43,21 +43,10 @@ func (c *Client) Run() error {
 }
 
 func (c *Client) printOutput(conn net.Conn) {
-	reader := bufio.NewReader(conn)
-	for {
-		str, err := reader.ReadString('\n')
-		if err == nil {
-				fmt.Print(str)
-				continue
-		}
-		if err != io.EOF {
-			panic("error while reading from connection")
-		}
-		c.wait <- true
-		return
-	}
+	io.Copy(os.Stdout, conn)
+	c.wait <- true
 }
 
 func (c *Client) waitConn() {
-	<- c.wait
+	<-c.wait
 }

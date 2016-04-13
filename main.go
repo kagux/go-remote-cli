@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/kagux/go-remote-cli/client"
 	"github.com/kagux/go-remote-cli/server"
-	"fmt"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
 )
@@ -25,7 +25,7 @@ func main() {
 		err = s.Run()
 	} else {
 		c := client.New(&client.Options{
-			Cmd: *cmd,
+			Cmd:  *cmd,
 			Host: *host,
 			Port: *port,
 		})
