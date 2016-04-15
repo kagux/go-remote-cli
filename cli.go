@@ -6,6 +6,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 	"strings"
 	"path/filepath"
+	"fmt"
 )
 
 type Options struct {
@@ -15,7 +16,7 @@ type Options struct {
 }
 
 const (
-	appVersion = "0.0.4"
+	appVersion = "0.0.6"
 )
 
 var (
@@ -38,6 +39,7 @@ func ParseCLI(args []string) *Options {
 	_, err := app.Parse(cli_args)
 
 	if err != nil {
+		fmt.Println("Error parsing command: " + err.Error() + " ...passing all args to remote cli.")
 		// use executable name as command and args as cmd args
 		*cmd = exec_name + " " + strings.Join(cli_args, " ")
 	}
