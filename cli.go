@@ -4,7 +4,6 @@ import (
 	"github.com/kagux/go-remote-cli/client"
 	"github.com/kagux/go-remote-cli/server"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"os"
 	"strings"
 	"path/filepath"
 )
@@ -27,19 +26,20 @@ var (
 	port     = app.Flag("port", "Port to bind to or to connect to").Short('p').Default("9201").Int()
 )
 
-func ParseCLI() *Options {
-	exec_name := filepath.Base(os.Args[0])
+func ParseCLI(args []string) *Options {
+	exec_name := filepath.Base(args[0])
+	cli_args := args[1:]
 
 	app.Version(appVersion)
 	app.DefaultEnvars()
 	// keep name dynamic to have env vars like MAHOUT_PORT=999
   app.Name = exec_name
 
-	_, err := app.Parse(os.Args[1:])
+	_, err := app.Parse(cli_args)
 
 	if err != nil {
 		// use executable name as command and args as cmd args
-		*cmd = exec_name + " " + strings.Join(os.Args[1:], " ")
+		*cmd = exec_name + " " + strings.Join(cli_args, " ")
 	}
 
 	return &Options{

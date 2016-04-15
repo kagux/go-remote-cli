@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	opts := ParseCLI()
+	opts := ParseCLI(os.Args)
 	var err error
 	if opts.IsServer {
 		 err = server.New(opts.ServerOptions).Run()
