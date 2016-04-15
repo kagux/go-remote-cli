@@ -28,13 +28,18 @@ var (
 )
 
 func ParseCLI() *Options {
+	exec_name := filepath.Base(os.Args[0])
+
 	app.Version(appVersion)
 	app.DefaultEnvars()
+	// keep name dynamic to have env vars like MAHOUT_PORT=999
+  app.Name = exec_name
+
 	_, err := app.Parse(os.Args[1:])
 
 	if err != nil {
 		// use executable name as command and args as cmd args
-		*cmd = filepath.Base(os.Args[0]) + " " + strings.Join(os.Args[1:], " ")
+		*cmd = exec_name + " " + strings.Join(os.Args[1:], " ")
 	}
 
 	return &Options{
