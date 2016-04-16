@@ -24,8 +24,8 @@ Flags:
       --version         Show application version.
 ```
 
-In client mode you can either pass full command to `-c` flag, i.e. `remote_cli -c 'ls -la' -h server -p 9999`.
-But a more convinient way is to rename `remote_cli` binary to executable you're stubbing. 
+In client mode you can either pass full command to `-c` flag, i.e. `remote_cli -c 'ls -la' -h server -p 9999`
+or, move conveniently, rename `remote_cli` binary to executable you're stubbing. 
 `remote_cli` will pick command name from it's file name and pass all arguments as is to remote server.
 You can pass additional flags using environment variables as `[EXECUTABLE_NAME]_[FLAG]=value`.
 
