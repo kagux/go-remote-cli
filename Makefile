@@ -35,7 +35,7 @@ github-release:
 	go get github.com/aktau/github-release
 
 # git tag -a v$(RELEASE) -m 'release $(RELEASE)'
-release: github-release $(COMPRESSED_EXECUTABLE_TARGETS)
+release: clean github-release $(COMPRESSED_EXECUTABLE_TARGETS)
 	git push && git push --tags
 	github-release release -u $(USER) -r $(REPOSITORY) -t $(LAST_TAG) -n $(LAST_TAG) || true
 	$(foreach FILE,$(COMPRESSED_EXECUTABLES),$(UPLOAD_CMD);)
