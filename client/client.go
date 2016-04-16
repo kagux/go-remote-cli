@@ -5,11 +5,11 @@ import (
 	"io"
 	"net"
 	"os"
+	"sync"
 )
 
 type Client struct {
 	opts *Options
-	wait chan bool
 }
 
 type Options struct {
@@ -26,7 +26,6 @@ func (o *Options) Address() string {
 func New(opts *Options) *Client {
 	return &Client{
 		opts: opts,
-		wait: make(chan bool, 1),
 	}
 }
 
@@ -35,18 +34,16 @@ func (c *Client) Run() error {
 	if err != nil {
 		return err
 	}
-	go c.printOutput(conn)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go c.printOutput(conn, &wg)
 	fmt.Fprintf(conn, "%s\n", c.opts.Cmd)
-	c.waitConn()
+	wg.Wait()
 
 	return nil
 }
 
-func (c *Client) printOutput(conn net.Conn) {
+func (c *Client) printOutput(conn net.Conn, wg *sync.WaitGroup) {
 	io.Copy(os.Stdout, conn)
-	c.wait <- true
-}
-
-func (c *Client) waitConn() {
-	<-c.wait
+	wg.Done()
 }
