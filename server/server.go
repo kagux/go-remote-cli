@@ -55,7 +55,10 @@ func (s *Server) handleRequest(conn net.Conn) {
 	}
 	fmt.Print("Command Received:", string(cmd))
 	output := io.MultiWriter(os.Stdout, conn)
-	s.cmdRunner.Run(cmd, output)
+	err = s.cmdRunner.Run(cmd, output)
+	if err != nil {
+		fmt.Fprintln(output, "Error executing command: ", err.Error())
+	}
 	// give client some time to read output
 	time.Sleep(500 * time.Millisecond)
 	conn.Close()

@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"io"
 	"os/exec"
 	"strings"
@@ -14,21 +13,19 @@ func NewCommandRunner() *CommandRunner {
 	return &CommandRunner{}
 }
 
-func (cr *CommandRunner) Run(cmdStr string, output io.Writer) {
-	pReader, pWriter := io.Pipe()
-	defer pWriter.Close()
+func (cr *CommandRunner) Run(cmdStr string, output io.Writer) error {
 	cmdParts := strings.Fields(cmdStr)
 	cmd := exec.Command(cmdParts[0], cmdParts[1:]...)
-	cmd.Stdout = pWriter
-	cmd.Stderr = pWriter
-
-	go io.Copy(output, pReader)
+	cmd.Stdout = output
+	cmd.Stderr = output
 
 	if err := cmd.Start(); err != nil {
-		fmt.Fprintln(pWriter, "Error starting command: ", err.Error())
+		return err
 	}
 
 	if err := cmd.Wait(); err != nil {
-		fmt.Fprintln(pWriter, "Error executing command: ", err.Error())
+		return err
 	}
+
+	return nil
 }
