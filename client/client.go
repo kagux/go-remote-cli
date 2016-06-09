@@ -1,11 +1,13 @@
 package client
 
 import (
-	"fmt"
-	"io"
-	"net"
 	"os"
+	"io"
+	"fmt"
+	"net"
 	"sync"
+	"github.com/kagux/go-remote-cli/command"
+	"encoding/gob"
 )
 
 type Client struct {
@@ -34,16 +36,32 @@ func (c *Client) Run() error {
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go c.printOutput(conn, &wg)
+	go handleOutput(conn, &wg)
 	fmt.Fprintf(conn, "%s\n", c.opts.Cmd)
 	wg.Wait()
 
 	return nil
 }
 
-func (c *Client) printOutput(conn net.Conn, wg *sync.WaitGroup) {
-	io.Copy(os.Stdout, conn)
+func handleOutput(conn net.Conn, wg *sync.WaitGroup) {
+	dec := gob.NewDecoder(conn)
+	var o command.Output
+	for {
+		err := dec.Decode(&o)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			fmt.Printf("Decoding error: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Print(o.Text)
+		if o.ExitStatus > 0 {
+			os.Exit(o.ExitStatus)
+		}
+	}
 	wg.Done()
 }
