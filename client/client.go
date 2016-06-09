@@ -1,13 +1,13 @@
 package client
 
 import (
-	"os"
-	"io"
-	"fmt"
-	"net"
-	"sync"
-	"github.com/kagux/go-remote-cli/command"
 	"encoding/gob"
+	"fmt"
+	"github.com/kagux/go-remote-cli/command"
+	"io"
+	"net"
+	"os"
+	"sync"
 )
 
 type Client struct {

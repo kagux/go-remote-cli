@@ -2,11 +2,11 @@ package server
 
 import (
 	"bufio"
+	"encoding/gob"
 	"fmt"
+	"github.com/kagux/go-remote-cli/command"
 	"net"
 	"time"
-	"github.com/kagux/go-remote-cli/command"
-	"encoding/gob"
 )
 
 type Server struct {
