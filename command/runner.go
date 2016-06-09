@@ -1,10 +1,10 @@
 package command
 
 import (
+	"errors"
+	"fmt"
 	"os/exec"
 	"strings"
-	"fmt"
-	"errors"
 )
 
 type Runner struct {

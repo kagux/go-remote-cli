@@ -6,7 +6,7 @@ import (
 )
 
 type Server struct {
-	opts      *Options
+	opts *Options
 }
 
 type Options struct {
@@ -21,7 +21,7 @@ func (o *Options) Address() string {
 
 func New(opts *Options) *Server {
 	return &Server{
-		opts:      opts,
+		opts: opts,
 	}
 }
 

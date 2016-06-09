@@ -6,20 +6,20 @@ import (
 	"fmt"
 	"github.com/kagux/go-remote-cli/command"
 	"net"
-	"sync"
 	"strings"
+	"sync"
 )
 
 type RequestHandler struct {
-	conn net.Conn
-	cmdRunner  *command.Runner
-	out chan *command.Output
+	conn      net.Conn
+	cmdRunner *command.Runner
+	out       chan *command.Output
 	waitGroup sync.WaitGroup
 }
 
 func NewRequestHandler(conn net.Conn) *RequestHandler {
 	return &RequestHandler{
-		conn: conn,
+		conn:      conn,
 		cmdRunner: command.NewRunner(),
 	}
 }
