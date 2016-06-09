@@ -3,6 +3,8 @@ package command
 import (
 	"os/exec"
 	"strings"
+	"fmt"
+	"errors"
 )
 
 type Runner struct {
@@ -13,6 +15,12 @@ func NewRunner() *Runner {
 }
 
 func (cr *Runner) Run(cmdStr string, writer *OutputWriter) {
+	if len(cmdStr) == 0 {
+		writer.WriteError(errors.New("Received empty command"))
+		return
+	}
+
+	fmt.Print("Command Received:", cmdStr)
 	cmdParts := strings.Fields(cmdStr)
 	cmd := exec.Command(cmdParts[0], cmdParts[1:]...)
 	cmd.Stdout = writer

@@ -7,6 +7,7 @@ import (
 	"github.com/kagux/go-remote-cli/command"
 	"net"
 	"sync"
+	"strings"
 )
 
 type RequestHandler struct {
@@ -39,8 +40,7 @@ func (rh *RequestHandler) executeCommand() {
 	if err != nil {
 		writer.WriteError(err)
 	}
-	fmt.Print("Command Received:", string(cmd))
-	rh.cmdRunner.Run(cmd, writer)
+	rh.cmdRunner.Run(strings.TrimSpace(cmd), writer)
 	close(rh.out)
 }
 
