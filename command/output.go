@@ -9,21 +9,25 @@ type Output struct {
 	ExitStatus int
 }
 
-func NewErrorOutput(err error) *Output {
-	msg := fmt.Sprintf("Error: %v\n", err)
-	exitStatus := 1
-	return &Output{
-		Text:       msg,
-		ExitStatus: exitStatus,
-	}
-}
-
 type OutputWriter struct {
 	out chan *Output
+}
+
+func NewOutputWriter(out chan *Output) *OutputWriter {
+	return &OutputWriter{out: out}
 }
 
 func (w *OutputWriter) Write(p []byte) (n int, err error) {
 	w.out <- &Output{Text: string(p)}
 
 	return len(p), nil
+}
+
+func (w *OutputWriter) WriteError(err error) {
+	msg := fmt.Sprintf("Error: %v\n", err)
+	exitStatus := 1
+	w.out <- &Output{
+		Text:       msg,
+		ExitStatus: exitStatus,
+	}
 }

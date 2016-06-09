@@ -12,18 +12,17 @@ func NewRunner() *Runner {
 	return &Runner{}
 }
 
-func (cr *Runner) Run(cmdStr string, out chan *Output) {
+func (cr *Runner) Run(cmdStr string, writer *OutputWriter) {
 	cmdParts := strings.Fields(cmdStr)
 	cmd := exec.Command(cmdParts[0], cmdParts[1:]...)
-	writer := &OutputWriter{out: out}
 	cmd.Stdout = writer
 	cmd.Stderr = writer
 
 	if err := cmd.Start(); err != nil {
-		out <- NewErrorOutput(err)
+		writer.WriteError(err)
 	}
 
 	if err := cmd.Wait(); err != nil {
-		out <- NewErrorOutput(err)
+		writer.WriteError(err)
 	}
 }

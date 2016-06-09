@@ -35,12 +35,12 @@ func (rh *RequestHandler) Handle() {
 
 func (rh *RequestHandler) executeCommand() {
 	cmd, err := bufio.NewReader(rh.conn).ReadString('\n')
+	writer := command.NewOutputWriter(rh.out)
 	if err != nil {
-		rh.out <- command.NewErrorOutput(err)
+		writer.WriteError(err)
 	}
-
 	fmt.Print("Command Received:", string(cmd))
-	rh.cmdRunner.Run(cmd, rh.out)
+	rh.cmdRunner.Run(cmd, writer)
 	close(rh.out)
 }
 
