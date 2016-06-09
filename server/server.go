@@ -1,17 +1,12 @@
 package server
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"net"
-	"os"
-	"time"
 )
 
 type Server struct {
-	opts      *Options
-	cmdRunner *CommandRunner
+	opts *Options
 }
 
 type Options struct {
@@ -26,8 +21,7 @@ func (o *Options) Address() string {
 
 func New(opts *Options) *Server {
 	return &Server{
-		opts:      opts,
-		cmdRunner: NewCommandRunner(),
+		opts: opts,
 	}
 }
 
@@ -44,19 +38,6 @@ func (s *Server) Run() error {
 		if err != nil {
 			return err
 		}
-		go s.handleRequest(conn)
+		go NewRequestHandler(conn).Handle()
 	}
-}
-
-func (s *Server) handleRequest(conn net.Conn) {
-	cmd, err := bufio.NewReader(conn).ReadString('\n')
-	if err != nil {
-		fmt.Println("Error reading:", err.Error())
-	}
-	fmt.Print("Command Received:", string(cmd))
-	output := io.MultiWriter(os.Stdout, conn)
-	s.cmdRunner.Run(cmd, output)
-	// give client some time to read output
-	time.Sleep(500 * time.Millisecond)
-	conn.Close()
 }
