@@ -1,17 +1,12 @@
 package server
 
 import (
-	"bufio"
-	"encoding/gob"
 	"fmt"
-	"github.com/kagux/go-remote-cli/command"
 	"net"
-	"time"
 )
 
 type Server struct {
 	opts      *Options
-	cmdRunner *command.Runner
 }
 
 type Options struct {
@@ -27,7 +22,6 @@ func (o *Options) Address() string {
 func New(opts *Options) *Server {
 	return &Server{
 		opts:      opts,
-		cmdRunner: command.NewRunner(),
 	}
 }
 
@@ -44,28 +38,6 @@ func (s *Server) Run() error {
 		if err != nil {
 			return err
 		}
-		go s.handleRequest(conn)
-	}
-}
-
-func (s *Server) handleRequest(conn net.Conn) {
-	cmd, err := bufio.NewReader(conn).ReadString('\n')
-	if err != nil {
-		fmt.Println("Error reading:", err.Error())
-	}
-	fmt.Print("Command Received:", string(cmd))
-	out := make(chan *command.Output)
-	go handleCommandOutput(conn, out)
-	s.cmdRunner.Run(cmd, out)
-	time.Sleep(500 * time.Millisecond)
-	conn.Close()
-	fmt.Println("Command executed")
-}
-
-func handleCommandOutput(conn net.Conn, out chan *command.Output) {
-	enc := gob.NewEncoder(conn)
-	for o := range out {
-		fmt.Print(o.Text)
-		enc.Encode(o)
+		go NewRequestHandler(conn).Handle()
 	}
 }
