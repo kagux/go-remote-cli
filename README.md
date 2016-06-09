@@ -65,4 +65,6 @@ Here's how you can replace `ls` command:
 
 ## Release
 
-Run `GITHUB_TOKEN=[your_token] make release`
+1. Tag master with next version
+2. Cleanup build directories `make clean`
+3. Build biniries and upload to github `GITHUB_TOKEN=[your_token] make release`
