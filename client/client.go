@@ -18,6 +18,7 @@ type Options struct {
 	Cmd  string
 	Host string
 	Port int
+	Quite bool
 }
 
 func (o *Options) Address() string {
@@ -39,14 +40,14 @@ func (c *Client) Run() error {
 	defer conn.Close()
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go handleOutput(conn, &wg)
+	go c.handleOutput(conn, &wg)
 	fmt.Fprintf(conn, "%s\n", c.opts.Cmd)
 	wg.Wait()
 
 	return nil
 }
 
-func handleOutput(conn net.Conn, wg *sync.WaitGroup) {
+func (c *Client) handleOutput(conn net.Conn, wg *sync.WaitGroup) {
 	dec := gob.NewDecoder(conn)
 	var o command.Output
 	for {
@@ -58,7 +59,9 @@ func handleOutput(conn net.Conn, wg *sync.WaitGroup) {
 			fmt.Printf("Decoding error: %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Print(o.Text)
+		if !c.opts.Quite {
+			fmt.Print(o.Text)
+		}
 		if o.ExitStatus > 0 {
 			os.Exit(o.ExitStatus)
 		}
