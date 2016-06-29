@@ -16,7 +16,7 @@ type Options struct {
 }
 
 const (
-	appVersion = "0.0.6"
+	appVersion = "0.0.8"
 )
 
 var (
