@@ -31,7 +31,7 @@ func (rh *RequestHandler) Handle() {
 	rh.executeCommand()
 	rh.waitGroup.Wait()
 	rh.conn.Close()
-	fmt.Println("Connection closed")
+	fmt.Println("*** Connection closed")
 }
 
 func (rh *RequestHandler) executeCommand() {

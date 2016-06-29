@@ -40,7 +40,7 @@ func ParseCLI(args []string) *Options {
 	_, err := app.Parse(cli_args)
 
 	if err != nil {
-		fmt.Println("Error parsing command: " + err.Error() + " ...passing all args to remote cli.")
+		fmt.Println("*** Error parsing command: " + err.Error() + " ...passing all args to remote cli.")
 		// use executable name as command and args as cmd args
 		*cmd = exec_name + " " + strings.Join(cli_args, " ")
 	}

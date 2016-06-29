@@ -38,11 +38,14 @@ func (c *Client) Run() error {
 		return err
 	}
 	defer conn.Close()
+	fmt.Printf("*** Connection to remote cli at %s established\n", c.opts.Address())
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go c.handleOutput(conn, &wg)
+	fmt.Printf("*** Executing command `%s`\n", c.opts.Cmd)
 	fmt.Fprintf(conn, "%s\n", c.opts.Cmd)
 	wg.Wait()
+	fmt.Println("*** Command successfully executed, closing connection")
 
 	return nil
 }
@@ -56,7 +59,7 @@ func (c *Client) handleOutput(conn net.Conn, wg *sync.WaitGroup) {
 			break
 		}
 		if err != nil {
-			fmt.Printf("Decoding error: %v\n", err)
+			fmt.Printf("*** Decoding error: %v\n", err)
 			os.Exit(1)
 		}
 		if !c.opts.Quite {

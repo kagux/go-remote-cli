@@ -26,13 +26,13 @@ func New(opts *Options) *Server {
 }
 
 func (s *Server) Run() error {
-	fmt.Println("Launching server...")
+	fmt.Println("*** Launching server...")
 	ln, err := net.Listen("tcp", s.opts.Address())
 	defer ln.Close()
 	if err != nil {
 		return err
 	}
-	fmt.Println("Listening...")
+	fmt.Println("*** Listening...")
 	for {
 		conn, err := ln.Accept()
 		if err != nil {

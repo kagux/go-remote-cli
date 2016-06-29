@@ -20,7 +20,7 @@ func (cr *Runner) Run(cmdStr string, writer *OutputWriter) {
 		return
 	}
 
-	fmt.Println("Command Received:", cmdStr)
+	fmt.Println("*** Command Received:", cmdStr)
 	cmdParts := strings.Fields(cmdStr)
 	cmd := exec.Command(cmdParts[0], cmdParts[1:]...)
 	cmd.Stdout = writer
