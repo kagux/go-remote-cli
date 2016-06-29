@@ -18,6 +18,7 @@ type Options struct {
 	Cmd  string
 	Host string
 	Port int
+	Quiet bool
 }
 
 func (o *Options) Address() string {
@@ -37,16 +38,19 @@ func (c *Client) Run() error {
 		return err
 	}
 	defer conn.Close()
+	fmt.Printf("*** Connection to remote cli at %s established\n", c.opts.Address())
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go handleOutput(conn, &wg)
+	go c.handleOutput(conn, &wg)
+	fmt.Printf("*** Executing command `%s`\n", c.opts.Cmd)
 	fmt.Fprintf(conn, "%s\n", c.opts.Cmd)
 	wg.Wait()
+	fmt.Println("*** Command successfully executed, closing connection")
 
 	return nil
 }
 
-func handleOutput(conn net.Conn, wg *sync.WaitGroup) {
+func (c *Client) handleOutput(conn net.Conn, wg *sync.WaitGroup) {
 	dec := gob.NewDecoder(conn)
 	var o command.Output
 	for {
@@ -55,10 +59,12 @@ func handleOutput(conn net.Conn, wg *sync.WaitGroup) {
 			break
 		}
 		if err != nil {
-			fmt.Printf("Decoding error: %v\n", err)
+			fmt.Printf("*** Decoding error: %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Print(o.Text)
+		if !c.opts.Quiet {
+			fmt.Print(o.Text)
+		}
 		if o.ExitStatus > 0 {
 			os.Exit(o.ExitStatus)
 		}

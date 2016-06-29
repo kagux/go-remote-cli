@@ -22,9 +22,10 @@ const (
 var (
 	app      = kingpin.New("remote_cli", "A remote command line app proxy")
 	isServer = app.Flag("server", "Run in server mode").Short('s').Default("false").Bool()
-	cmd      = app.Flag("cmd", "[Client mode] Command to run").Short('c').String()
 	host     = app.Flag("host", "Host to bind to or to connect to").Short('h').Default("0.0.0.0").String()
 	port     = app.Flag("port", "Port to bind to or to connect to").Short('p').Default("9201").Int()
+	cmd      = app.Flag("cmd", "[Client mode] Command to run").Short('c').String()
+	quiet    = app.Flag("quiet", "[Client mode] Suppress command output").Short('q').Default("false").Bool()
 )
 
 func ParseCLI(args []string) *Options {
@@ -39,7 +40,7 @@ func ParseCLI(args []string) *Options {
 	_, err := app.Parse(cli_args)
 
 	if err != nil {
-		fmt.Println("Error parsing command: " + err.Error() + " ...passing all args to remote cli.")
+		fmt.Println("*** Error parsing command: " + err.Error() + " ...passing all args to remote cli.")
 		// use executable name as command and args as cmd args
 		*cmd = exec_name + " " + strings.Join(cli_args, " ")
 	}
@@ -54,6 +55,7 @@ func ParseCLI(args []string) *Options {
 			Cmd:  *cmd,
 			Host: *host,
 			Port: *port,
+			Quiet: *quiet,
 		},
 	}
 }
