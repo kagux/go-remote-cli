@@ -1,12 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"github.com/kagux/go-remote-cli/client"
 	"github.com/kagux/go-remote-cli/server"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"strings"
 	"path/filepath"
-	"fmt"
+	"strings"
 )
 
 type Options struct {
@@ -35,7 +35,7 @@ func ParseCLI(args []string) *Options {
 	app.Version(appVersion)
 	app.DefaultEnvars()
 	// keep name dynamic to have env vars like MAHOUT_PORT=999
-  app.Name = exec_name
+	app.Name = exec_name
 
 	_, err := app.Parse(cli_args)
 
@@ -52,9 +52,9 @@ func ParseCLI(args []string) *Options {
 			Port: *port,
 		},
 		ClientOptions: &client.Options{
-			Cmd:  *cmd,
-			Host: *host,
-			Port: *port,
+			Cmd:   *cmd,
+			Host:  *host,
+			Port:  *port,
 			Quiet: *quiet,
 		},
 	}

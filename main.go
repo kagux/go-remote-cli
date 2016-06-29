@@ -11,7 +11,7 @@ func main() {
 	opts := ParseCLI(os.Args)
 	var err error
 	if opts.IsServer {
-		 err = server.New(opts.ServerOptions).Run()
+		err = server.New(opts.ServerOptions).Run()
 	} else {
 		err = client.New(opts.ClientOptions).Run()
 	}

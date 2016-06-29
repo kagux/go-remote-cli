@@ -15,9 +15,9 @@ type Client struct {
 }
 
 type Options struct {
-	Cmd  string
-	Host string
-	Port int
+	Cmd   string
+	Host  string
+	Port  int
 	Quiet bool
 }
 
