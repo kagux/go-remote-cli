@@ -25,7 +25,7 @@ var (
 	host     = app.Flag("host", "Host to bind to or to connect to").Short('h').Default("0.0.0.0").String()
 	port     = app.Flag("port", "Port to bind to or to connect to").Short('p').Default("9201").Int()
 	cmd      = app.Flag("cmd", "[Client mode] Command to run").Short('c').String()
-	quite    = app.Flag("quite", "[Client mode] Suppress command output").Short('q').Default("false").Bool()
+	quiet    = app.Flag("quiet", "[Client mode] Suppress command output").Short('q').Default("false").Bool()
 )
 
 func ParseCLI(args []string) *Options {
@@ -55,7 +55,7 @@ func ParseCLI(args []string) *Options {
 			Cmd:  *cmd,
 			Host: *host,
 			Port: *port,
-			Quite: *quite,
+			Quiet: *quiet,
 		},
 	}
 }
