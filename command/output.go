@@ -10,6 +10,7 @@ type Output struct {
 }
 
 type OutputWriter struct {
+	Quiet bool
 	out chan *Output
 }
 
@@ -18,9 +19,14 @@ func NewOutputWriter(out chan *Output) *OutputWriter {
 }
 
 func (w *OutputWriter) Write(p []byte) (n int, err error) {
+	n = len(p)
+	if w.Quiet {
+		return
+	}
+
 	w.out <- &Output{Text: string(p)}
 
-	return len(p), nil
+	return
 }
 
 func (w *OutputWriter) WriteError(err error) {

@@ -1,12 +1,10 @@
 package server
 
 import (
-	"bufio"
 	"encoding/gob"
 	"fmt"
 	"github.com/kagux/go-remote-cli/command"
 	"net"
-	"strings"
 	"sync"
 )
 
@@ -35,12 +33,15 @@ func (rh *RequestHandler) Handle() {
 }
 
 func (rh *RequestHandler) executeCommand() {
-	cmd, err := bufio.NewReader(rh.conn).ReadString('\n')
+	dec := gob.NewDecoder(rh.conn)
+	var r command.Request
+	err := dec.Decode(&r)
 	writer := command.NewOutputWriter(rh.out)
 	if err != nil {
 		writer.WriteError(err)
 	}
-	rh.cmdRunner.Run(strings.TrimSpace(cmd), writer)
+	writer.Quiet = r.Quiet
+	rh.cmdRunner.Run(r.NormalizedCommand(), writer)
 	close(rh.out)
 }
 

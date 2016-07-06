@@ -43,11 +43,18 @@ func (c *Client) Run() error {
 	wg.Add(1)
 	go c.handleOutput(conn, &wg)
 	fmt.Printf("*** Executing command `%s`\n", c.opts.Cmd)
+	c.sendCommand(conn)
 	fmt.Fprintf(conn, "%s\n", c.opts.Cmd)
 	wg.Wait()
 	fmt.Println("*** Command successfully executed, closing connection")
 
 	return nil
+}
+
+func (c *Client) sendCommand(conn net.Conn) {
+	enc := gob.NewEncoder(conn)
+	request := command.Request{Cmd: c.opts.Cmd, Quiet: c.opts.Quiet }
+	enc.Encode(request)
 }
 
 func (c *Client) handleOutput(conn net.Conn, wg *sync.WaitGroup) {
