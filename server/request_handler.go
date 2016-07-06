@@ -6,6 +6,8 @@ import (
 	"github.com/kagux/go-remote-cli/command"
 	"net"
 	"sync"
+	"io/ioutil"
+	"io"
 )
 
 type RequestHandler struct {
@@ -36,12 +38,17 @@ func (rh *RequestHandler) executeCommand() {
 	dec := gob.NewDecoder(rh.conn)
 	var r command.Request
 	err := dec.Decode(&r)
-	writer := command.NewOutputWriter(rh.out)
+	eWriter := command.NewErrorWriter(rh.out)
 	if err != nil {
-		writer.WriteError(err)
+		eWriter.WriteError(err)
 	}
-	writer.Quiet = r.Quiet
-	rh.cmdRunner.Run(r.NormalizedCommand(), writer)
+	var oWriter io.Writer
+	if r.Quiet {
+		oWriter = ioutil.Discard
+	} else {
+		oWriter = command.NewOutputWriter(rh.out)
+	}
+	rh.cmdRunner.Run(r.NormalizedCommand(), oWriter, eWriter)
 	close(rh.out)
 }
 

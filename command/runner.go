@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"io"
 )
 
 type Runner struct {
@@ -14,23 +15,23 @@ func NewRunner() *Runner {
 	return &Runner{}
 }
 
-func (cr *Runner) Run(cmdStr string, writer *OutputWriter) {
+func (cr *Runner) Run(cmdStr string, oWriter io.Writer, eWriter *ErrorWriter) {
 	if len(cmdStr) == 0 {
-		writer.WriteError(errors.New("Received empty command"))
+		eWriter.WriteError(errors.New("Received empty command"))
 		return
 	}
 
 	fmt.Println("*** Command Received:", cmdStr)
 	cmdParts := strings.Fields(cmdStr)
 	cmd := exec.Command(cmdParts[0], cmdParts[1:]...)
-	cmd.Stdout = writer
-	cmd.Stderr = writer
+	cmd.Stdout = oWriter
+	cmd.Stderr = oWriter
 
 	if err := cmd.Start(); err != nil {
-		writer.WriteError(err)
+		eWriter.WriteError(err)
 	}
 
 	if err := cmd.Wait(); err != nil {
-		writer.WriteError(err)
+		eWriter.WriteError(err)
 	}
 }
