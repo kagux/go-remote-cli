@@ -69,9 +69,7 @@ func (c *Client) handleOutput(conn net.Conn, wg *sync.WaitGroup) {
 			fmt.Printf("*** Decoding error: %v\n", err)
 			os.Exit(1)
 		}
-		if !c.opts.Quiet {
-			fmt.Print(o.Text)
-		}
+		fmt.Print(o.Text)
 		if o.ExitStatus > 0 {
 			os.Exit(o.ExitStatus)
 		}
