@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/kagux/go-remote-cli/command"
 	"net"
-	"sync"
 	"io/ioutil"
 	"io"
+	"sync"
 )
 
 type RequestHandler struct {
@@ -35,24 +35,31 @@ func (rh *RequestHandler) Handle() {
 }
 
 func (rh *RequestHandler) executeCommand() {
-	dec := gob.NewDecoder(rh.conn)
-	var r command.Request
-	err := dec.Decode(&r)
 	eWriter := command.NewErrorWriter(rh.out)
+	req, err := rh.readCommandRequest()
 	if err != nil {
 		eWriter.Write(err)
 	}
-	var oWriter io.Writer
-	if r.Quiet {
-		oWriter = ioutil.Discard
-	} else {
-		oWriter = command.NewOutputWriter(rh.out)
-	}
-	err = rh.cmdRunner.Run(r.NormalizedCommand(), oWriter)
-	if err != nil {
+	if err := rh.runCommand(req); err != nil {
 		eWriter.Write(err)
 	}
 	close(rh.out)
+}
+
+func (rh *RequestHandler) runCommand(r command.Request) error {
+	var w io.Writer
+	if r.Quiet {
+		w = ioutil.Discard
+	} else {
+		w = command.NewOutputWriter(rh.out)
+	}
+	return rh.cmdRunner.Run(r.NormalizedCommand(), w)
+}
+
+func (rh *RequestHandler) readCommandRequest() (r command.Request, err error) {
+	dec := gob.NewDecoder(rh.conn)
+	err = dec.Decode(&r)
+	return
 }
 
 func (rh *RequestHandler) handleCommandOutput() {
