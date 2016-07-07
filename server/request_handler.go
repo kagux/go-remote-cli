@@ -1,12 +1,12 @@
 package server
 
 import (
-	"bufio"
 	"encoding/gob"
 	"fmt"
 	"github.com/kagux/go-remote-cli/command"
 	"net"
-	"strings"
+	"io/ioutil"
+	"io"
 	"sync"
 )
 
@@ -35,13 +35,31 @@ func (rh *RequestHandler) Handle() {
 }
 
 func (rh *RequestHandler) executeCommand() {
-	cmd, err := bufio.NewReader(rh.conn).ReadString('\n')
-	writer := command.NewOutputWriter(rh.out)
+	eWriter := command.NewErrorWriter(rh.out)
+	req, err := rh.readCommandRequest()
 	if err != nil {
-		writer.WriteError(err)
+		eWriter.Write(err)
 	}
-	rh.cmdRunner.Run(strings.TrimSpace(cmd), writer)
+	if err := rh.runCommand(req); err != nil {
+		eWriter.Write(err)
+	}
 	close(rh.out)
+}
+
+func (rh *RequestHandler) runCommand(r command.Request) error {
+	var w io.Writer
+	if r.Quiet {
+		w = ioutil.Discard
+	} else {
+		w = command.NewOutputWriter(rh.out)
+	}
+	return rh.cmdRunner.Run(r.NormalizedCommand(), w)
+}
+
+func (rh *RequestHandler) readCommandRequest() (r command.Request, err error) {
+	dec := gob.NewDecoder(rh.conn)
+	err = dec.Decode(&r)
+	return
 }
 
 func (rh *RequestHandler) handleCommandOutput() {
