@@ -15,10 +15,9 @@ func NewRunner() *Runner {
 	return &Runner{}
 }
 
-func (cr *Runner) Run(cmdStr string, oWriter io.Writer, eWriter *ErrorWriter) {
+func (cr *Runner) Run(cmdStr string, oWriter io.Writer) error {
 	if len(cmdStr) == 0 {
-		eWriter.WriteError(errors.New("Received empty command"))
-		return
+		return errors.New("Received empty command")
 	}
 
 	fmt.Println("*** Command Received:", cmdStr)
@@ -28,10 +27,12 @@ func (cr *Runner) Run(cmdStr string, oWriter io.Writer, eWriter *ErrorWriter) {
 	cmd.Stderr = oWriter
 
 	if err := cmd.Start(); err != nil {
-		eWriter.WriteError(err)
+		return err
 	}
 
 	if err := cmd.Wait(); err != nil {
-		eWriter.WriteError(err)
+		return err
 	}
+
+	return nil
 }

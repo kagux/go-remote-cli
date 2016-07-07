@@ -40,7 +40,7 @@ func (rh *RequestHandler) executeCommand() {
 	err := dec.Decode(&r)
 	eWriter := command.NewErrorWriter(rh.out)
 	if err != nil {
-		eWriter.WriteError(err)
+		eWriter.Write(err)
 	}
 	var oWriter io.Writer
 	if r.Quiet {
@@ -48,7 +48,10 @@ func (rh *RequestHandler) executeCommand() {
 	} else {
 		oWriter = command.NewOutputWriter(rh.out)
 	}
-	rh.cmdRunner.Run(r.NormalizedCommand(), oWriter, eWriter)
+	err = rh.cmdRunner.Run(r.NormalizedCommand(), oWriter)
+	if err != nil {
+		eWriter.Write(err)
+	}
 	close(rh.out)
 }
 

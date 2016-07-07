@@ -12,7 +12,7 @@ func NewErrorWriter(out chan *Output) *ErrorWriter {
 	return &ErrorWriter{out: out}
 }
 
-func (w *ErrorWriter) WriteError(err error) {
+func (w *ErrorWriter) Write(err error) {
 	msg := fmt.Sprintf("Error: %v\n", err)
 	exitStatus := 1
 	w.out <- &Output{
